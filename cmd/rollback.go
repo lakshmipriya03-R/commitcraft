@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -52,8 +53,11 @@ Example:
 			fmt.Printf("  Type 'yes' to continue: ")
 
 			var answer string
-			fmt.Scanln(&answer)
-			if answer != "yes" {
+			if _, err := fmt.Scanln(&answer); err != nil {
+				return fmt.Errorf("failed to read confirmation: %w", err)
+			}
+
+			if strings.TrimSpace(strings.ToLower(answer)) != "yes" {
 				fmt.Println("  cancelled")
 				return nil
 			}

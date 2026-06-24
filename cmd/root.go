@@ -14,17 +14,7 @@ var cfgFile string
 var rootCmd = &cobra.Command{
 	Use:   "commitcraft",
 	Short: "Rewrite Git history with precision",
-	Long: `
-  ██████╗ ██████╗ ███╗   ███╗███╗   ███╗██╗████████╗ ██████╗██████╗  █████╗ ███████╗████████╗
- ██╔════╝██╔═══██╗████╗ ████║████╗ ████║██║╚══██╔══╝██╔════╝██╔══██╗██╔══██╗██╔════╝╚══██╔══╝
- ██║     ██║   ██║██╔████╔██║██╔████╔██║██║   ██║   ██║     ██████╔╝███████║█████╗     ██║   
- ██║     ██║   ██║██║╚██╔╝██║██║╚██╔╝██║██║   ██║   ██║     ██╔══██╗██╔══██║██╔══╝     ██║   
- ╚██████╗╚██████╔╝██║ ╚═╝ ██║██║ ╚═╝ ██║██║   ██║   ╚██████╗██║  ██║██║  ██║██║        ██║   
-  ╚═════╝ ╚═════╝ ╚═╝     ╚═╝╚═╝     ╚═╝╚═╝   ╚═╝    ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝        ╚═╝   
-
-  Craft cleaner Git history. One commit at a time.`,
-
-	// don't show usage on errors—it's noisy and unhelpful
+	Long:  "CommitCraft helps you rewrite Git history safely and cleanly.",
 	SilenceUsage: true,
 }
 
@@ -40,8 +30,14 @@ func init() {
 	rootCmd.PersistentFlags().String("repo", ".", "path to the git repository")
 
 	// bind flags to viper so they're accessible anywhere
-	viper.BindPFlag("verbose", rootCmd.PersistentFlags().Lookup("verbose"))
-	viper.BindPFlag("repo", rootCmd.PersistentFlags().Lookup("repo"))
+	if err := viper.BindPFlag("verbose", rootCmd.PersistentFlags().Lookup("verbose")); err != nil {
+		fmt.Fprintln(os.Stderr, "failed to bind verbose flag:", err)
+		os.Exit(1)
+	}
+	if err := viper.BindPFlag("repo", rootCmd.PersistentFlags().Lookup("repo")); err != nil {
+		fmt.Fprintln(os.Stderr, "failed to bind repo flag:", err)
+		os.Exit(1)
+	}
 
 	rootCmd.AddCommand(
 		newRecommitCmd(),
@@ -49,10 +45,10 @@ func init() {
 		newInspectCmd(),
 		newAuthorCmd(),
 		newTimestampCmd(),
-                newRollbackCmd(),
-                newPlanCmd(),
-                newApplyCmd(),
-                newLintCmd(),
+		newRollbackCmd(),
+		newPlanCmd(),
+		newApplyCmd(),
+		newLintCmd(),
 	)
 }
 
